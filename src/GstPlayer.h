@@ -45,6 +45,10 @@ private:
 	GstElement * gst_camerabin;
 	GstElement * gst_video_sink;
 	GstElement * gst_camera_sink;
+#ifndef WIN32
+	GstElement * gst_capsfilter;
+	GstElement * gst_camera_pipeline;
+#endif
 };
 
 #endif /* SRC_GSTPLAYER_H_ */
