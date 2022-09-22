@@ -18,9 +18,6 @@ static void on_app_activate(GApplication *app, gpointer data) {
     g_player = new GstPlayer();
     g_mainwindow = new GtkMainWindow(app, g_player);
 
-    g_player->set_camera_sink(g_mainwindow->get_video_sink());
-    g_player->set_video_sink(g_mainwindow->get_video_sink());
-
 	g_print("App activated finish\n");
 }
 

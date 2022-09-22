@@ -30,8 +30,12 @@ public:
 	GstPlayer();
 	virtual ~GstPlayer();
 
+	// for glimagesink
 	void set_video_sink(GdkWindow *sink);
 	void set_camera_sink(GdkWindow *sink);
+	// for gtksink
+	GtkWidget * get_video_widget();
+	GtkWidget * get_camera_widget();
 
 	gboolean is_video_playing();
 	gboolean is_camera_playing();

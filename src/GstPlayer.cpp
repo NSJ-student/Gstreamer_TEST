@@ -38,14 +38,16 @@ GstPlayer::GstPlayer()
 		return;
 	}
 
-	gst_video_sink = gst_element_factory_make ("glimagesink", NULL);
+//	gst_video_sink = gst_element_factory_make ("glimagesink", NULL);
+	gst_video_sink = gst_element_factory_make ("gtksink", NULL);
 	if(gst_video_sink == 0)
 	{
 		g_printerr ("Unable to make gst_video_sink.\n");
 		return;
 	}
 
-	gst_camera_sink = gst_element_factory_make ("glimagesink", NULL);
+//	gst_camera_sink = gst_element_factory_make ("glimagesink", NULL);
+	gst_camera_sink = gst_element_factory_make ("gtksink", NULL);
 	if(gst_camera_sink == 0)
 	{
 		g_printerr ("Unable to make gst_camera_sink.\n");
@@ -107,7 +109,6 @@ GstPlayer::~GstPlayer() {
 
 void GstPlayer::set_video_sink(GdkWindow *sink)
 {
-
 #ifdef WIN32
 	HGDIOBJ embed_xid;
 	embed_xid = gdk_win32_window_get_handle (sink);
@@ -128,6 +129,28 @@ void GstPlayer::set_camera_sink(GdkWindow *sink)
 	embed_xid = gdk_x11_window_get_xid(sink);
 #endif
 	gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(gst_camera_sink), (guintptr)embed_xid);
+}
+
+GtkWidget* GstPlayer::get_video_widget()
+{
+	GtkWidget *area;
+	g_object_get (gst_video_sink, "widget", &area, NULL);
+	if(area == 0)
+	{
+		g_printerr("gtk_video_sink is 0");
+	}
+	return area;
+}
+
+GtkWidget* GstPlayer::get_camera_widget()
+{
+	GtkWidget *area;
+	g_object_get (gst_camera_sink, "widget", &area, NULL);
+	if(area == 0)
+	{
+		g_printerr("gst_camera_sink is 0");
+	}
+	return area;
 }
 
 gboolean GstPlayer::is_video_playing()
