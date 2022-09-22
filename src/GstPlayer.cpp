@@ -14,6 +14,7 @@ static GstBusSyncReply _on_bus_message (GstBus * bus, GstMessage * message, void
 /**********************************************/
 
 // gst-launch-1.0 v4l2src device=/dev/video0 ! 'video/x-raw(NVMM),format=(string)UYVY,width=640,height=480' ! glimagesink
+// gst-launch-1.0 v4l2src device=/dev/video0 ! 'video/x-raw,format=(string)UYVY,width=640,height=480' ! videoconvert ! gtksink sync=false
 GstPlayer::GstPlayer()
 {
 	GstBus *bus;
@@ -77,18 +78,30 @@ GstPlayer::GstPlayer()
 		g_printerr ("Unable to make gst_capsfilter.\n");
 		return;
 	}
+	gst_videoconvert = gst_element_factory_make ("videoconvert", NULL);
+	if(gst_videoconvert == 0)
+	{
+		g_printerr ("Unable to make gst_videoconvert.\n");
+		return;
+	}
 
 	GstCaps* filtercaps = gst_caps_from_string("video/x-raw,format=(string)UYVY,width=640,height=480");
 	g_object_set(gst_capsfilter, "caps", filtercaps, NULL);
-	g_object_set (gst_camerabin, "device", "/dev/video0", NULL);
+	g_object_set(gst_camerabin, "device", "/dev/video0", NULL);
+	g_object_set(gst_camera_sink, "sync", false, NULL);
 
-	gst_bin_add_many (GST_BIN (gst_camera_pipeline), gst_camerabin, gst_capsfilter, gst_camera_sink, NULL);
+	gst_bin_add_many (GST_BIN (gst_camera_pipeline), gst_camerabin, gst_capsfilter, gst_videoconvert, gst_camera_sink, NULL);
 	if(FALSE == gst_element_link (gst_camerabin, gst_capsfilter))
 	{
 		g_printerr("  Video Link Failed (gst_capsfilter)...\n");
 		return;
 	}
-	if(FALSE == gst_element_link (gst_capsfilter, gst_camera_sink))
+	if(FALSE == gst_element_link (gst_capsfilter, gst_videoconvert))
+	{
+		g_printerr("  Video Link Failed (gst_videoconvert)...\n");
+		return;
+	}
+	if(FALSE == gst_element_link (gst_videoconvert, gst_camera_sink))
 	{
 		g_printerr("  Video Link Failed (gst_camera_sink)...\n");
 		return;

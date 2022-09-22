@@ -51,6 +51,7 @@ private:
 	GstElement * gst_camera_sink;
 #ifndef WIN32
 	GstElement * gst_capsfilter;
+	GstElement * gst_videoconvert;
 	GstElement * gst_camera_pipeline;
 #endif
 };

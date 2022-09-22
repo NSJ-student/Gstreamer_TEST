@@ -39,7 +39,7 @@ public:
 
 private:
 	GtkWidget * gtk_window;
-	GtkWidget * gtk_hpaned_container;
+	GtkWidget * gtk_vpaned_container;
 		GtkWidget * gtk_viewer_notebook;
 			GtkWidget * gtk_video_viewer;
 			GtkWidget * gtk_camera_viewer;

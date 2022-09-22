@@ -24,7 +24,7 @@ GtkMainWindow::GtkMainWindow(GApplication *app, GstPlayer * player) :
     /////  main window
     //////////////////////////////
 	gtk_window = gtk_application_window_new(GTK_APPLICATION(app));
-	gtk_hpaned_container = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_vpaned_container = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
 	gtk_viewer_notebook  = gtk_notebook_new();
 	gtk_video_viewer = gst_player->get_video_widget();
 	gtk_camera_viewer = gst_player->get_camera_widget();
@@ -39,18 +39,17 @@ GtkMainWindow::GtkMainWindow(GApplication *app, GstPlayer * player) :
     gtk_notebook_set_tab_pos (GTK_NOTEBOOK(gtk_control_notebook), GTK_POS_TOP);
 
     // add to container
-    gtk_container_add (GTK_CONTAINER (GTK_WIDGET(gtk_window)), GTK_WIDGET(gtk_hpaned_container));
-	gtk_paned_pack1 (GTK_PANED(gtk_hpaned_container), gtk_viewer_notebook, true, true);
-    gtk_paned_pack2 (GTK_PANED(gtk_hpaned_container), gtk_control_notebook, true, true);
+    gtk_container_add (GTK_CONTAINER (GTK_WIDGET(gtk_window)), GTK_WIDGET(gtk_vpaned_container));
+	gtk_paned_pack1 (GTK_PANED(gtk_vpaned_container), gtk_viewer_notebook, true, true);
+    gtk_paned_pack2 (GTK_PANED(gtk_vpaned_container), gtk_control_notebook, false, false);
 
     g_signal_connect (GTK_WIDGET(gtk_window), "key-press-event", G_CALLBACK(on_shortcut_key_pressed), this);
 
     //////////////////////////////
     /////  page 1 (video)
     //////////////////////////////
-    gtk_notebook_page1 = gtk_fixed_new();
-	GtkWidget * label = gtk_label_new ("Video");
-    gtk_notebook_append_page (GTK_NOTEBOOK(gtk_control_notebook), gtk_notebook_page1, label);
+    gtk_notebook_page1 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_notebook_append_page (GTK_NOTEBOOK(gtk_control_notebook), gtk_notebook_page1, gtk_label_new ("Video"));
 
     gtk_txt_videopath = gtk_entry_new();
     gtk_btn_select_video = gtk_button_new_with_label("Open");
@@ -59,28 +58,27 @@ GtkMainWindow::GtkMainWindow(GApplication *app, GstPlayer * player) :
     g_signal_connect(gtk_btn_select_video, "clicked", G_CALLBACK(on_file_open_clicked), this);
     g_signal_connect(gtk_btn_play_video, "clicked", G_CALLBACK(on_playbin_clicked), this);
 
-    gtk_fixed_put(GTK_FIXED(gtk_notebook_page1), GTK_WIDGET(gtk_txt_videopath), 10, 10);
-    gtk_fixed_put(GTK_FIXED(gtk_notebook_page1), GTK_WIDGET(gtk_btn_select_video), 10, 50);
-    gtk_fixed_put(GTK_FIXED(gtk_notebook_page1), GTK_WIDGET(gtk_btn_play_video), 80, 50);
+    gtk_box_pack_start(GTK_BOX(gtk_notebook_page1), GTK_WIDGET(gtk_txt_videopath), true, true, 0);
+    gtk_box_pack_start(GTK_BOX(gtk_notebook_page1), GTK_WIDGET(gtk_btn_select_video), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(gtk_notebook_page1), GTK_WIDGET(gtk_btn_play_video), false, false, 0);
 
     //////////////////////////////
     /////  page 2 (camera)
     //////////////////////////////
-    gtk_notebook_page2 = gtk_fixed_new();
-	GtkWidget * label2 = gtk_label_new ("Camera");
-    gtk_notebook_append_page (GTK_NOTEBOOK(gtk_control_notebook), gtk_notebook_page2, label2);
+    gtk_notebook_page2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_notebook_append_page (GTK_NOTEBOOK(gtk_control_notebook), gtk_notebook_page2, gtk_label_new ("Camera"));
 
     gtk_btn_play_camera = gtk_button_new_with_label("Play");
     g_signal_connect(gtk_btn_play_camera, "clicked", G_CALLBACK(on_camerabin_clicked), this);
 
-    gtk_fixed_put(GTK_FIXED(gtk_notebook_page2), GTK_WIDGET(gtk_btn_play_camera), 10, 10);
+    gtk_box_pack_start(GTK_BOX(gtk_notebook_page2), GTK_WIDGET(gtk_btn_play_camera), false, false, 0);
 
     //////////////////////////////
     /////  display the gtk_window
     //////////////////////////////
     gtk_widget_show_all(GTK_WIDGET(gtk_window));
-    gtk_widget_set_size_request(GTK_WIDGET(gtk_window), 940, 480);
-    gtk_widget_queue_resize (GTK_WIDGET(gtk_window));
+//    gtk_widget_set_size_request(GTK_WIDGET(gtk_window), 640, 540);
+//    gtk_widget_queue_resize (GTK_WIDGET(gtk_window));
 }
 
 GtkMainWindow::~GtkMainWindow()
@@ -101,12 +99,12 @@ GtkWidget* GtkMainWindow::get_video_widget()
 void GtkMainWindow::set_video_widget(GtkWidget *widget)
 {
 	gtk_video_viewer = widget;
-	gtk_paned_pack1 (GTK_PANED(gtk_hpaned_container), gtk_video_viewer, true, true);
+	gtk_paned_pack1 (GTK_PANED(gtk_vpaned_container), gtk_video_viewer, true, true);
 }
 
 void GtkMainWindow::resize_video_viewer()
 {
-	int width = gtk_paned_get_position(GTK_PANED(gtk_hpaned_container));
+	int width = gtk_paned_get_position(GTK_PANED(gtk_vpaned_container));
 	int org_w, org_h;
 	int window_w, window_h;
 	gtk_widget_get_size_request(GTK_WIDGET(gtk_video_viewer), &org_w, &org_h);
